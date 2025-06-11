@@ -46,7 +46,7 @@ def main() -> None:
             if os.path.isdir(expanded_path):
                 os.chdir(expanded_path)
             else:
-                print(f"cd: <{parmaters}>: No such file or directory")        
+                print(f"cd: {parmaters}: No such file or directory")        
         elif command_exist(prog , paths) is not None:
             tokens: list[str] = [prog] + parmaters.split() 
             result: subprocess.CompletedProcess[str] = subprocess.run(tokens, capture_output=True, text=True)
