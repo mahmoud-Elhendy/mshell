@@ -16,7 +16,7 @@ def command_exist(command: str, dirs: list[str]) -> str | None:
 
 def main() -> None:
     term: bool = False
-    builtin_commands: set[str] = {"echo","exit","type","pwd"}
+    builtin_commands: set[str] = {"echo","exit","type","pwd","cd"}
     paths: list[str] = os.environ['PATH'].split(':')
     while not term:
         sys.stdout.write("$ ")
@@ -41,6 +41,8 @@ def main() -> None:
                 print(f"{parmaters}: not found")
         elif prog == "pwd":
             print(os.getcwd())
+        elif prog == "cd":
+            os.chdir(os.path.expanduser(parmaters))    
         elif command_exist(prog , paths) is not None:
             tokens: list[str] = [prog] + parmaters.split() 
             result: subprocess.CompletedProcess[str] = subprocess.run(tokens, capture_output=True, text=True)
