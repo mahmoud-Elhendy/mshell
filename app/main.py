@@ -16,7 +16,7 @@ def command_exist(command: str, dirs: list[str]) -> str | None:
 
 def main() -> None:
     term: bool = False
-    builtin_commands: set[str] = {"echo","exit","type","pwd","cd"}
+    builtin_commands: set[str] = {"echo","exit","type","pwd","cd","cat"}
     paths: list[str] = os.environ['PATH'].split(':')
     while not term:
         sys.stdout.write("$ ")
@@ -31,7 +31,8 @@ def main() -> None:
         if command == "exit 0":
             term = True
         elif prog == "echo":
-            print(parmaters)
+            stripped_params: str = parmaters.strip('"\'')
+            print(stripped_params)
         elif prog == "type":
             if  parmaters in builtin_commands:
                 print(f"{parmaters} is a shell builtin")
@@ -46,7 +47,12 @@ def main() -> None:
             if os.path.isdir(expanded_path):
                 os.chdir(expanded_path)
             else:
-                print(f"cd: {parmaters}: No such file or directory")        
+                print(f"cd: {parmaters}: No such file or directory")   
+        elif prog == "cat":
+            for param in parmaters.split():
+                stripped_param: str = param.strip('"\'')
+                with open(os.path.expanduser(stripped_param) , "r") as f:
+                    print(f.read())    
         elif command_exist(prog , paths) is not None:
             tokens: list[str] = [prog] + parmaters.split() 
             result: subprocess.CompletedProcess[str] = subprocess.run(tokens, capture_output=True, text=True)
