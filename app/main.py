@@ -25,11 +25,10 @@ def main() -> None:
         elif command.split(' ',1)[0] == "type":
             param: str = command.split(' ',1)[1]
             paths: list[str] = os.environ['PATH'].split(':')
-            print(paths)
             if  param in builtin_commands:
                 print(f"{param} is a shell builtin")
-            elif (file := command_exist(param , paths)) is not None:
-                print(f"{param} is {file}")
+            elif (path := command_exist(param , paths)) is not None:
+                print(f"{param} is {path}")
             else:
                 print(f"{param}: not found")
 
