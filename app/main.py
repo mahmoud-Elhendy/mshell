@@ -42,7 +42,11 @@ def main() -> None:
         elif prog == "pwd":
             print(os.getcwd())
         elif prog == "cd":
-            os.chdir(os.path.expanduser(parmaters))    
+            expanded_path: str = os.path.expanduser(parmaters)
+            if os.path.isdir(expanded_path):
+                os.chdir(expanded_path)
+            else:
+                print(f"cd: <{parmaters}>: No such file or directory")        
         elif command_exist(prog , paths) is not None:
             tokens: list[str] = [prog] + parmaters.split() 
             result: subprocess.CompletedProcess[str] = subprocess.run(tokens, capture_output=True, text=True)
