@@ -1,5 +1,15 @@
 import sys
+import os
 
+def command_exist(command: str, dirs: list[str]) -> str | None:
+    for dir in dirs:
+        try:
+            files: list[str] = os.listdir(dir)
+            if command in files:
+                return os.path.join(dir, command)
+        except FileNotFoundError:
+            continue
+    return None
 
 def main() -> None:
     term: bool = False
@@ -14,8 +24,12 @@ def main() -> None:
             print(command.split(' ',1)[1])
         elif command.split(' ',1)[0] == "type":
             param: str = command.split(' ',1)[1]
+            paths: list[str] = os.environ['PATH'].split(':')
+            print(paths)
             if  param in builtin_commands:
                 print(f"{param} is a shell builtin")
+            elif (file := command_exist(param , paths)) is not None:
+                print(f"{param} is {file}")
             else:
                 print(f"{param}: not found")
 
