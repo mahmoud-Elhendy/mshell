@@ -1,7 +1,7 @@
 import sys
 
 
-def main():
+def main() -> None:
     sys.stdout.write("$ ")
     # Wait for user input
     command: str = input()
