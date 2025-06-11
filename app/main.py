@@ -39,8 +39,8 @@ def main() -> None:
                 print(f"{parmaters} is {path}")
             else:
                 print(f"{parmaters}: not found")
-        elif (path := command_exist(prog , paths)) is not None:
-            tokens: list[str] = [path] + parmaters.split() 
+        elif command_exist(prog , paths) is not None:
+            tokens: list[str] = [prog] + parmaters.split() 
             result: subprocess.CompletedProcess[str] = subprocess.run(tokens, capture_output=True, text=True)
             print(result.stdout)
         else:
