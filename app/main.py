@@ -42,7 +42,7 @@ def main() -> None:
         elif command_exist(prog , paths) is not None:
             tokens: list[str] = [prog] + parmaters.split() 
             result: subprocess.CompletedProcess[str] = subprocess.run(tokens, capture_output=True, text=True)
-            print(result.stdout)
+            print(result.stdout.strip())
         else:
             print(f"{command}: command not found")
 
