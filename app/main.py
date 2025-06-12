@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import os
+import shlex
 
 def command_exist(command: str, dirs: list[str]) -> str | None:
     if command == '':
@@ -31,14 +32,11 @@ def main() -> None:
         else:
             prog= parts[0]
             parmaters: str = ''
-            
+
         if command == "exit 0":
             term = True
         elif prog == "echo":
-            if is_quoted(parmaters):
-                text: str = parmaters.strip('"\'')
-            else:
-                text = ' '.join(parmaters.split())
+            text = ' '.join(shlex.split(parmaters))
             print(text)
         elif prog == "type":
             if  parmaters in builtin_commands:
