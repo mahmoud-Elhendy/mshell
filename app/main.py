@@ -57,7 +57,7 @@ def main() -> None:
             for param in shlex.split(parmaters):
                 with open(os.path.expanduser(param) , "r") as f:
                     print(f.read(),end='')
-                print('')        
+            print('')        
         elif command_exist(prog , paths) is not None:
             tokens: list[str] = [prog] + parmaters.split() 
             result: subprocess.CompletedProcess[str] = subprocess.run(tokens, capture_output=True, text=True)
