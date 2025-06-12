@@ -54,8 +54,8 @@ def main() -> None:
             else:
                 print(f"cd: {parmaters}: No such file or directory")   
         elif prog == "cat":
-            for param in parmaters.split():
-                stripped_param: str = param.strip('"\'')
+            for param in shlex.split(parmaters):
+                stripped_param: str = param.replace(" ","")
                 with open(os.path.expanduser(stripped_param) , "r") as f:
                     print(f.read())    
         elif command_exist(prog , paths) is not None:
