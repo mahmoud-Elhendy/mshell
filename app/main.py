@@ -53,12 +53,12 @@ def main() -> None:
                 os.chdir(expanded_path)
             else:
                 print(f"cd: {parmaters}: No such file or directory")   
-        elif prog == "cat":
-            for param in shlex.split(parmaters):
-                with open(os.path.expanduser(param) , "r") as f:
-                    print(f.read(),end='')        
+        # elif prog == "cat":
+        #     for param in shlex.split(parmaters):
+        #         with open(os.path.expanduser(param) , "r") as f:
+        #             print(f.read(),end='')        
         elif command_exist(prog , paths) is not None:
-            tokens: list[str] = [prog] + parmaters.split() 
+            tokens: list[str] = [prog] + shlex.split(parmaters) 
             result: subprocess.CompletedProcess[str] = subprocess.run(tokens, capture_output=True, text=True)
             print(result.stdout.strip())
         else:
