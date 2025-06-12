@@ -44,12 +44,12 @@ def main() -> None:
             elif (path := command_exist(parmaters[0] , paths)) is not None:
                 print(f"{parmaters[0]} is {path}")
             else:
-                print(f"{parmaters}: not found")
+                print(f"{parmaters[0]}: not found")
         elif prog == "pwd":
             print(os.getcwd())
         elif prog == "cd":
             if len(parmaters) == 0 :
-                print("type: missing arg")
+                print("cd: missing arg")
             elif os.path.isdir((expanded_path:=os.path.expanduser(parmaters[0]))):
                 os.chdir(expanded_path)
             else:
