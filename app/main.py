@@ -15,9 +15,6 @@ def command_exist(command: str, dirs: list[str]) -> str | None:
             continue
     return None
 
-def is_quoted(s: str) -> bool:
-    return (len(s) >= 2) and ((s[0] == s[-1]) and s[0] in {"'", '"'})
-
 def main() -> None:
     term: bool = False
     builtin_commands: set[str] = {"echo","exit","type","pwd","cd"}
@@ -26,40 +23,39 @@ def main() -> None:
         sys.stdout.write("$ ")
         # Wait for user input
         command: str = input()
-        parts: list[str] = command.split(' ', 1)
-        if len(parts) == 2:
-            prog, parmaters = parts
-        else:
-            prog= parts[0]
-            parmaters: str = ''
+        parts: list[str] = shlex.split(command)
+        if len(parts) == 0:
+            continue
+        prog = parts[0]
+        parmaters = list()
+        if len(parts) > 1:
+            parmaters: list[str] = parts[1:]
 
         if command == "exit 0":
             term = True
         elif prog == "echo":
-            text = ' '.join(shlex.split(parmaters))
+            text = ' '.join(parmaters)
             print(text)
         elif prog == "type":
-            if  parmaters in builtin_commands:
-                print(f"{parmaters} is a shell builtin")
-            elif (path := command_exist(parmaters , paths)) is not None:
-                print(f"{parmaters} is {path}")
+            if len(parmaters) == 0 :
+                print("type: missing arg")
+            elif  parmaters[0] in builtin_commands:
+                print(f"{parmaters[0]} is a shell builtin")
+            elif (path := command_exist(parmaters[0] , paths)) is not None:
+                print(f"{parmaters[0]} is {path}")
             else:
                 print(f"{parmaters}: not found")
         elif prog == "pwd":
             print(os.getcwd())
         elif prog == "cd":
-            expanded_path: str = os.path.expanduser(parmaters)
-            if os.path.isdir(expanded_path):
+            if len(parmaters) == 0 :
+                print("type: missing arg")
+            elif os.path.isdir((expanded_path:=os.path.expanduser(parmaters[0]))):
                 os.chdir(expanded_path)
             else:
                 print(f"cd: {parmaters}: No such file or directory")   
-        # elif prog == "cat":
-        #     for param in shlex.split(parmaters):
-        #         with open(os.path.expanduser(param) , "r") as f:
-        #             print(f.read(),end='')        
         elif command_exist(prog , paths) is not None:
-            tokens: list[str] = [prog] + shlex.split(parmaters) 
-            result: subprocess.CompletedProcess[str] = subprocess.run(tokens, capture_output=True, text=True)
+            result: subprocess.CompletedProcess[str] = subprocess.run(parts, capture_output=True, text=True)
             print(result.stdout.strip())
         else:
             print(f"{command}: command not found")
