@@ -53,7 +53,7 @@ def main() -> None:
             elif os.path.isdir((expanded_path:=os.path.expanduser(parmaters[0]))):
                 os.chdir(expanded_path)
             else:
-                print(f"cd: {parmaters}: No such file or directory")   
+                print(f"cd: {parmaters[0]}: No such file or directory")   
         elif command_exist(prog , paths) is not None:
             result: subprocess.CompletedProcess[str] = subprocess.run(parts, capture_output=True, text=True)
             print(result.stdout.strip())
