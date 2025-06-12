@@ -14,6 +14,9 @@ def command_exist(command: str, dirs: list[str]) -> str | None:
             continue
     return None
 
+def is_quoted(s: str) -> bool:
+    return (len(s) >= 2) and ((s[0] == s[-1]) and s[0] in {"'", '"'})
+
 def main() -> None:
     term: bool = False
     builtin_commands: set[str] = {"echo","exit","type","pwd","cd","cat"}
@@ -28,11 +31,15 @@ def main() -> None:
         else:
             prog= parts[0]
             parmaters: str = ''
+            
         if command == "exit 0":
             term = True
         elif prog == "echo":
-            stripped_params: str = parmaters.strip('"\'')
-            print(stripped_params)
+            if is_quoted(parmaters):
+                text: str = parmaters.strip('"\'')
+            else:
+                text = ' '.join(parmaters.split())
+            print(text)
         elif prog == "type":
             if  parmaters in builtin_commands:
                 print(f"{parmaters} is a shell builtin")
