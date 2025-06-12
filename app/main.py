@@ -20,7 +20,7 @@ def is_quoted(s: str) -> bool:
 
 def main() -> None:
     term: bool = False
-    builtin_commands: set[str] = {"echo","exit","type","pwd","cd","cat"}
+    builtin_commands: set[str] = {"echo","exit","type","pwd","cd"}
     paths: list[str] = os.environ['PATH'].split(':')
     while not term:
         sys.stdout.write("$ ")
