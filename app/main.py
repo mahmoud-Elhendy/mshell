@@ -17,11 +17,12 @@ def command_exist(command: str, dirs: list[str]) -> str | None:
 
 def redirect(output: str| None , redirs :list[str], append: bool = False) -> None:
     mode: str = "w" if append == False else "a"
+    newline: str = "" if append == False else "\n"
     for r in redirs:
         with open(r,mode) as f:
             if output is None:
                 output = ''
-            f.write(output + "\n")
+            f.write(output + newline)
 
 def main() -> None:
     term: bool = False
