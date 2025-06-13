@@ -15,12 +15,13 @@ def command_exist(command: str, dirs: list[str]) -> str | None:
             continue
     return None
 
-def handle_stdout(stdout: str| None , redirs :list[str]) -> None:
+def redirect(output: str| None , redirs :list[str], append: bool = False) -> None:
+    mode: str = "w" if append == False else "a"
     for r in redirs:
-        with open(r,"w") as f:
-            if stdout is None:
-                stdout = ''
-            f.write(stdout)
+        with open(r,mode) as f:
+            if output is None:
+                output = ''
+            f.write(output)
 
 def main() -> None:
     term: bool = False
@@ -84,14 +85,20 @@ def main() -> None:
 
         #check redir
         stdout_redir: list[str] = redirections['>'] + redirections['1>']
+        stdout_append: list[str] = redirections['>>'] + redirections['1>>']
+        if len(stdout_append) > 0:
+            redirect(stdout, stdout_append, append=True)
         if len(stdout_redir) > 0:
-            handle_stdout(stdout, stdout_redir)
+            redirect(stdout, stdout_redir)
         elif stdout is not None:
             print(stdout)
 
         stderr_redir: list[str] = redirections['2>']
+        stderr_append: list[str] = redirections['2>>']
+        if len(stderr_append) > 0:
+            redirect(stderr, stderr_append, append=True)
         if len(stderr_redir) > 0:
-            handle_stdout(stderr, stderr_redir)
+            redirect(stderr, stderr_redir)
         elif stderr is not None:
             print(stderr)
 
