@@ -70,7 +70,7 @@ def main() -> None:
             else:
                 stderr = f"cd: {parmaters[0]}: No such file or directory"   
         elif command_exist(prog , paths) is not None:
-            result: subprocess.CompletedProcess[str] = subprocess.run(parts, capture_output=True, text=True)
+            result: subprocess.CompletedProcess[str] = subprocess.run([prog] + parmaters, capture_output=True, text=True)
             stdout = result.stdout.strip()
         else:
             stderr = f"{command}: command not found"
@@ -82,7 +82,11 @@ def main() -> None:
         else:
             print(stdout)
 
+        stderr_redir: list[str] = redirections['2>']
+        if len(stderr_redir) > 0:
+            handle_stdout(stderr, stderr_redir)
+        else:
+            print(stderr)
 
-            
 if __name__ == "__main__":
     main()
