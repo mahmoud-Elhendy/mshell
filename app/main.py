@@ -92,7 +92,7 @@ def main() -> None:
             if len(stdout_redir) > 0:
                 redirect(stdout, stdout_redir)
         elif stdout is not None:
-            print(stdout)
+            print(stdout.strip())
 
         stderr_redir: list[str] = redirections['2>']
         stderr_append: list[str] = redirections['2>>']
