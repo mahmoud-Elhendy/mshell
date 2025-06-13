@@ -43,9 +43,10 @@ def main() -> None:
         for i,token in enumerate(parts[1:]):
             if token in redirections and  len(parts) > i+1:
                 redirections[token].append(parts[1:][i+1])
+                paramters_set = True
             elif not paramters_set:
                 parmaters.append(token)
-                paramters_set = True
+                
 
 
         if command == "exit 0":
