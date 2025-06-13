@@ -77,9 +77,9 @@ def main() -> None:
         elif command_exist(prog , paths) is not None:
             result: subprocess.CompletedProcess[str] = subprocess.run([prog] + parmaters, capture_output=True, text=True)
             if result.stdout:
-                stdout = result.stdout.strip()
+                stdout = result.stdout
             if result.stderr:
-                stderr = result.stderr.strip()
+                stderr = result.stderr
         else:
             stderr = f"{command}: command not found"
 
@@ -102,7 +102,7 @@ def main() -> None:
             if len(stderr_redir) > 0:
                 redirect(stderr, stderr_redir)
         elif stderr is not None:
-            print(stderr)
+            print(stderr.strip())
 
 if __name__ == "__main__":
     main()
