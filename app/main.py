@@ -15,50 +15,74 @@ def command_exist(command: str, dirs: list[str]) -> str | None:
             continue
     return None
 
+def handle_stdout(stdout: str , redirs :list[str]) -> None:
+    for r in redirs:
+        with open(r,"w") as f:
+            f.write(stdout)
+
 def main() -> None:
     term: bool = False
     builtin_commands: set[str] = {"echo","exit","type","pwd","cd"}
     paths: list[str] = os.environ['PATH'].split(':')
+    redirections: dict[str,list[str]] = {'>':[], '1>':[] ,'2>':[], '>>':[], '1>>':[], '2>>':[]}
     while not term:
         sys.stdout.write("$ ")
         # Wait for user input
+        stdout = str()
+        stderr = str()
         command: str = input()
         parts: list[str] = shlex.split(command)
         if len(parts) == 0:
             continue
-        prog = parts[0]
-        parmaters = list()
-        if len(parts) > 1:
-            parmaters: list[str] = parts[1:]
+        prog: str = parts[0]
+        parmaters: list[str] = list()
+        paramters_set =  False
+        #check redirections
+        for i,token in enumerate(parts[1:]):
+            if token in redirections and  len(parts) > i+1:
+                redirections[token].append(parts[1:][i+1])
+            elif not paramters_set:
+                parmaters.append(token)
+                paramters_set = True
+
 
         if command == "exit 0":
             term = True
         elif prog == "echo":
-            text = ' '.join(parmaters)
-            print(text)
+            text: str = ' '.join(parmaters)
+            stdout = text
         elif prog == "type":
             if len(parmaters) == 0 :
-                print("type: missing arg")
+                stderr = "type: missing arg"
             elif  parmaters[0] in builtin_commands:
-                print(f"{parmaters[0]} is a shell builtin")
+                stdout = f"{parmaters[0]} is a shell builtin"
             elif (path := command_exist(parmaters[0] , paths)) is not None:
-                print(f"{parmaters[0]} is {path}")
+                stdout = f"{parmaters[0]} is {path}"
             else:
-                print(f"{parmaters[0]}: not found")
+                stderr = f"{parmaters[0]}: not found"
         elif prog == "pwd":
-            print(os.getcwd())
+            stdout = os.getcwd()
         elif prog == "cd":
             if len(parmaters) == 0 :
-                print("cd: missing arg")
+                stderr = "cd: missing arg"
             elif os.path.isdir((expanded_path:=os.path.expanduser(parmaters[0]))):
                 os.chdir(expanded_path)
             else:
-                print(f"cd: {parmaters[0]}: No such file or directory")   
+                stderr = f"cd: {parmaters[0]}: No such file or directory"   
         elif command_exist(prog , paths) is not None:
             result: subprocess.CompletedProcess[str] = subprocess.run(parts, capture_output=True, text=True)
-            print(result.stdout.strip())
+            stdout = result.stdout.strip()
         else:
-            print(f"{command}: command not found")
+            stderr = f"{command}: command not found"
 
+        #check redir
+        stdout_redir: list[str] = redirections['>'] + redirections['1>']
+        if len(stdout_redir) > 0:
+            handle_stdout(stdout, stdout_redir)
+        else:
+            print(stdout)
+
+
+            
 if __name__ == "__main__":
     main()
