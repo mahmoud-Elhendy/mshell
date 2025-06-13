@@ -86,19 +86,21 @@ def main() -> None:
         #check redir
         stdout_redir: list[str] = redirections['>'] + redirections['1>']
         stdout_append: list[str] = redirections['>>'] + redirections['1>>']
-        if len(stdout_append) > 0:
-            redirect(stdout, stdout_append, append=True)
-        if len(stdout_redir) > 0:
-            redirect(stdout, stdout_redir)
+        if len(stdout_append) > 0 or len(stdout_redir) > 0:
+            if len(stdout_append) > 0:
+                redirect(stdout, stdout_append, append=True)
+            if len(stdout_redir) > 0:
+                redirect(stdout, stdout_redir)
         elif stdout is not None:
             print(stdout)
 
         stderr_redir: list[str] = redirections['2>']
         stderr_append: list[str] = redirections['2>>']
-        if len(stderr_append) > 0:
-            redirect(stderr, stderr_append, append=True)
-        if len(stderr_redir) > 0:
-            redirect(stderr, stderr_redir)
+        if len(stderr_append) > 0 or len(stderr_redir) > 0:
+            if len(stderr_append) > 0:
+                redirect(stderr, stderr_append, append=True)
+            if len(stderr_redir) > 0:
+                redirect(stderr, stderr_redir)
         elif stderr is not None:
             print(stderr)
 
