@@ -77,7 +77,7 @@ def main() -> None:
             result: subprocess.CompletedProcess[str] = subprocess.run([prog] + parmaters, capture_output=True, text=True)
             if result.stdout:
                 stdout = result.stdout.strip()
-            elif result.stderr:
+            if result.stderr:
                 stderr = result.stderr.strip()
         else:
             stderr = f"{command}: command not found"
