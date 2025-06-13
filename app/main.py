@@ -6,6 +6,7 @@ import readline
 
 builtin_commands: set[str] = {"echo","exit","type","pwd","cd"}
 all_commnds: set[str] = builtin_commands.copy()
+first_tab: bool = True
 
 def command_exist(command: str, dirs: list[str]) -> str | None:
     if command == '':
@@ -28,10 +29,16 @@ def redirect(output: str| None , redirs :list[str], append: bool = False) -> Non
             f.write(output)
 
 def completer(text: str, state: int) -> str | None:
-    matches = [cmd for cmd in all_commnds if cmd.startswith(text)]
+    global first_tab
+    matches: list[str] = [cmd for cmd in all_commnds if cmd.startswith(text)]
+    if len(matches) > 1 and state == 0 and first_tab:
+        print('\a')
+        first_tab = False
+        return None
     if state < len(matches):
         return matches[state] + ' '
     else:
+        first_tab = True
         return None
 
 def list_file_names(paths: list[str]) -> set[str]:
@@ -44,7 +51,6 @@ def list_file_names(paths: list[str]) -> set[str]:
                     file_names.add(entry)
     return file_names
 
-
 def main() -> None:
     global all_commnds
     paths: list[str] = os.environ['PATH'].split(':')
@@ -53,14 +59,12 @@ def main() -> None:
     readline.parse_and_bind("tab: complete")
     term: bool = False
     
-    
     while not term:
-        sys.stdout.write("$ ")
-        # Wait for user input
+        
         stdout: str | None = None
         stderr: str | None = None
         redirections: dict[str,list[str]] = {'>':[], '1>':[] ,'2>':[], '>>':[], '1>>':[], '2>>':[]}
-        command: str = input()
+        command: str = input("$ ")
         parts: list[str] = shlex.split(command)
         if len(parts) == 0:
             continue
