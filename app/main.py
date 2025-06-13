@@ -36,7 +36,7 @@ def completer(text: str, state: int) -> str | None:
         first_tab = False
         return None
     if state < len(matches):
-        return matches[state] + ' '
+        return matches[state]
     else:
         first_tab = True
         return None
