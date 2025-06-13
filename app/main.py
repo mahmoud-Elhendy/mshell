@@ -26,12 +26,13 @@ def main() -> None:
     term: bool = False
     builtin_commands: set[str] = {"echo","exit","type","pwd","cd"}
     paths: list[str] = os.environ['PATH'].split(':')
-    redirections: dict[str,list[str]] = {'>':[], '1>':[] ,'2>':[], '>>':[], '1>>':[], '2>>':[]}
+    
     while not term:
         sys.stdout.write("$ ")
         # Wait for user input
         stdout: str | None = None
         stderr: str | None = None
+        redirections: dict[str,list[str]] = {'>':[], '1>':[] ,'2>':[], '>>':[], '1>>':[], '2>>':[]}
         command: str = input()
         parts: list[str] = shlex.split(command)
         if len(parts) == 0:
