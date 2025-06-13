@@ -15,9 +15,11 @@ def command_exist(command: str, dirs: list[str]) -> str | None:
             continue
     return None
 
-def handle_stdout(stdout: str , redirs :list[str]) -> None:
+def handle_stdout(stdout: str| None , redirs :list[str]) -> None:
     for r in redirs:
         with open(r,"w") as f:
+            if stdout is None:
+                stdout = ''
             f.write(stdout)
 
 def main() -> None:
@@ -28,8 +30,8 @@ def main() -> None:
     while not term:
         sys.stdout.write("$ ")
         # Wait for user input
-        stdout = str()
-        stderr = str()
+        stdout: str | None = None
+        stderr: str | None = None
         command: str = input()
         parts: list[str] = shlex.split(command)
         if len(parts) == 0:
@@ -79,13 +81,13 @@ def main() -> None:
         stdout_redir: list[str] = redirections['>'] + redirections['1>']
         if len(stdout_redir) > 0:
             handle_stdout(stdout, stdout_redir)
-        else:
+        elif stdout is not None:
             print(stdout)
 
         stderr_redir: list[str] = redirections['2>']
         if len(stderr_redir) > 0:
             handle_stdout(stderr, stderr_redir)
-        else:
+        elif stderr is not None:
             print(stderr)
 
 if __name__ == "__main__":
