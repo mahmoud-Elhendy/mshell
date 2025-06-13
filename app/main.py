@@ -5,6 +5,7 @@ import shlex
 import readline
 
 builtin_commands: set[str] = {"echo","exit","type","pwd","cd"}
+all_commnds: set[str] = builtin_commands
 
 def command_exist(command: str, dirs: list[str]) -> str | None:
     if command == '':
@@ -27,18 +28,31 @@ def redirect(output: str| None , redirs :list[str], append: bool = False) -> Non
             f.write(output)
 
 def completer(text: str, state: int) -> str | None:
-    matches = [cmd for cmd in builtin_commands if cmd.startswith(text)]
+    matches = [cmd for cmd in all_commnds if cmd.startswith(text)]
     if state < len(matches):
         return matches[state] + ' '
     else:
         return None
 
+def list_file_names(paths: list[str]) -> set[str]:
+    file_names: set[str] = set()
+    for path in paths:
+        if os.path.isdir(path):
+            for entry in os.listdir(path):
+                full_path = os.path.join(path, entry)
+                if os.path.isfile(full_path):
+                    file_names.add(entry)
+    return file_names
+
 
 def main() -> None:
+    global all_commnds
+    paths: list[str] = os.environ['PATH'].split(':')
+    all_commnds |= list_file_names(paths)
     readline.set_completer(completer)
     readline.parse_and_bind("tab: complete")
     term: bool = False
-    paths: list[str] = os.environ['PATH'].split(':')
+    
     
     while not term:
         sys.stdout.write("$ ")
