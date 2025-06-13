@@ -29,7 +29,7 @@ def redirect(output: str| None , redirs :list[str], append: bool = False) -> Non
 def completer(text: str, state: int) -> str | None:
     matches = [cmd for cmd in builtin_commands if cmd.startswith(text)]
     if state < len(matches):
-        return matches[state]
+        return matches[state] + ' '
     else:
         return None
 
