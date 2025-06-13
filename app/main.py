@@ -88,12 +88,14 @@ def main() -> None:
             handle_stdout(stdout, stdout_redir)
         elif stdout is not None:
             print(stdout)
-
-        stderr_redir: list[str] = redirections['2>']
-        if len(stderr_redir) > 0:
-            handle_stdout(stderr, stderr_redir)
         elif stderr is not None:
-            print(stderr)
+            print(stderr)    
+
+        # stderr_redir: list[str] = redirections['2>']
+        # if len(stderr_redir) > 0:
+        #     handle_stdout(stderr, stderr_redir)
+        # elif stderr is not None:
+        #     print(stderr)
 
 if __name__ == "__main__":
     main()
