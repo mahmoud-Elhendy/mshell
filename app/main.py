@@ -21,7 +21,7 @@ def redirect(output: str| None , redirs :list[str], append: bool = False) -> Non
         with open(r,mode) as f:
             if output is None:
                 output = ''
-            f.write(output)
+            f.write(output + "\n")
 
 def main() -> None:
     term: bool = False
