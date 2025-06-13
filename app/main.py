@@ -88,7 +88,7 @@ def main() -> None:
             handle_stdout(stdout, stdout_redir)
         elif stdout is not None:
             print(stdout)
-        elif stderr is not None:
+        if stderr is not None:
             print(stderr)    
 
         # stderr_redir: list[str] = redirections['2>']
