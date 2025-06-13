@@ -5,7 +5,7 @@ import shlex
 import readline
 
 builtin_commands: set[str] = {"echo","exit","type","pwd","cd"}
-all_commnds: set[str] = builtin_commands
+all_commnds: set[str] = builtin_commands.copy()
 
 def command_exist(command: str, dirs: list[str]) -> str | None:
     if command == '':
