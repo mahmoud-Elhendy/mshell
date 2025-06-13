@@ -2,6 +2,9 @@ import subprocess
 import sys
 import os
 import shlex
+import readline
+
+builtin_commands: set[str] = {"echo","exit","type","pwd","cd"}
 
 def command_exist(command: str, dirs: list[str]) -> str | None:
     if command == '':
@@ -23,9 +26,18 @@ def redirect(output: str| None , redirs :list[str], append: bool = False) -> Non
                 output = ''
             f.write(output)
 
+def completer(text: str, state: int) -> str | None:
+    matches = [cmd for cmd in builtin_commands if cmd.startswith(text)]
+    if state < len(matches):
+        return matches[state]
+    else:
+        return None
+
+
 def main() -> None:
+    readline.set_completer(completer)
+    readline.parse_and_bind("tab: complete")
     term: bool = False
-    builtin_commands: set[str] = {"echo","exit","type","pwd","cd"}
     paths: list[str] = os.environ['PATH'].split(':')
     
     while not term:
@@ -49,8 +61,6 @@ def main() -> None:
             elif not paramters_set:
                 parmaters.append(token)
                 
-
-
         if command == "exit 0":
             term = True
         elif prog == "echo":
