@@ -77,7 +77,7 @@ def main() -> None:
             result: subprocess.CompletedProcess[str] = subprocess.run([prog] + parmaters, capture_output=True, text=True)
             stdout = result.stdout.strip()
         else:
-            stderr = f"{command}: command not found"
+            stdout = f"{command}: command not found"
 
         #check redir
         stdout_redir: list[str] = redirections['>'] + redirections['1>']
