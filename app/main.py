@@ -32,7 +32,7 @@ def completer(text: str, state: int) -> str | None:
     global first_tab
     matches: list[str] = sorted(cmd for cmd in all_commnds if cmd.startswith(text))
     if len(matches) > 1 and state == 0 and first_tab:
-        print('\a')
+        print('\a',end='', flush=True)
         first_tab = False
         return None
     if state < len(matches):
