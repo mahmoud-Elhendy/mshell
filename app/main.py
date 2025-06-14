@@ -30,7 +30,7 @@ def redirect(output: str| None , redirs :list[str], append: bool = False) -> Non
 
 def completer(text: str, state: int) -> str | None:
     global first_tab
-    matches: list[str] = [cmd for cmd in all_commnds if cmd.startswith(text)]
+    matches: list[str] = sorted(cmd for cmd in all_commnds if cmd.startswith(text))
     if len(matches) > 1 and state == 0 and first_tab:
         print('\a')
         first_tab = False
@@ -39,8 +39,6 @@ def completer(text: str, state: int) -> str | None:
         return matches[state]
     else:
         first_tab = True
-        print()
-        print("  ".join(matches))
         return None
 
 def list_file_names(paths: list[str]) -> set[str]:
@@ -62,7 +60,8 @@ def main() -> None:
     term: bool = False
     
     while not term:
-        
+        #sys.stdout.write("$ ")
+        # Wait for user input
         stdout: str | None = None
         stderr: str | None = None
         redirections: dict[str,list[str]] = {'>':[], '1>':[] ,'2>':[], '>>':[], '1>>':[], '2>>':[]}
