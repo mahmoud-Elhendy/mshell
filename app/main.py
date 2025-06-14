@@ -8,6 +8,15 @@ builtin_commands: set[str] = {"echo","exit","type","pwd","cd"}
 all_commnds: set[str] = builtin_commands.copy()
 first_tab: bool = True
 
+def check_partial_completion(commands: list[str]) ->bool:
+    if not commands:
+        return False
+    common: str = commands[0]
+    for command in commands[1:]:
+        if not command.startswith(common):
+            return False
+    return True
+    
 def command_exist(command: str, dirs: list[str]) -> str | None:
     if command == '':
         return None
@@ -31,9 +40,10 @@ def redirect(output: str| None , redirs :list[str], append: bool = False) -> Non
 def completer(text: str, state: int) -> str | None:
     global first_tab
     matches: list[str] = sorted(cmd for cmd in all_commnds if cmd.startswith(text))
+    partial_completion: bool = check_partial_completion(matches)
     if len(matches) == 1 and state == 0:
         return matches[state] + ' ' 
-    if len(matches) > 1 and state == 0 and first_tab:
+    if len(matches) > 1 and state == 0 and first_tab and not partial_completion:
         print('\a',end='', flush=True)
         first_tab = False
         return None
