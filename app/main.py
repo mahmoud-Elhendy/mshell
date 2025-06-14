@@ -36,9 +36,11 @@ def completer(text: str, state: int) -> str | None:
         first_tab = False
         return None
     if state < len(matches):
-        return matches[state].strip()
+        return matches[state]
     else:
         first_tab = True
+        print()
+        print("  ".join(matches))
         return None
 
 def list_file_names(paths: list[str]) -> set[str]:
