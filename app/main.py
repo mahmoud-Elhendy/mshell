@@ -1,12 +1,53 @@
 import subprocess
-import sys
 import os
 import shlex
 import readline
+from typing import IO, Union
 
 builtin_commands: set[str] = {"echo","exit","type","pwd","cd"}
 all_commnds: set[str] = builtin_commands.copy()
 first_tab: bool = True
+paths: list[str] = os.environ['PATH'].split(':')
+
+def echo(parmaters:list[str]) ->tuple[str,str]:
+        out: str = ' '.join(parmaters) + "\n"
+        return out,''
+
+def type_cmd(parmaters:list[str])->tuple[str,str]:
+    global paths
+    stdout = ''
+    stderr = ''
+    if len(parmaters) == 0 :
+        stderr = "type: missing arg"
+    elif  parmaters[0] in builtin_commands:
+        stdout = f"{parmaters[0]} is a shell builtin"
+    elif (path := command_exist(parmaters[0] , paths)) is not None:
+        stdout = f"{parmaters[0]} is {path}"
+    else:
+        stderr = f"{parmaters[0]}: not found"
+    return (stdout,stderr)
+
+def pwd(parmaters:list[str])->tuple[str,str]:
+    return os.getcwd(),''
+
+def cd(parmaters:list[str])->tuple[str,str]:
+    stderr = ''
+    if len(parmaters) == 0 :
+        stderr = "cd: missing arg"
+    elif os.path.isdir((expanded_path:=os.path.expanduser(parmaters[0]))):
+        os.chdir(expanded_path)
+    else:
+        stderr = f"cd: {parmaters[0]}: No such file or directory" 
+    return '',stderr
+    
+BUILTINS = {
+    "echo": echo,
+    #"exit": None,
+    "pwd":pwd,
+    "cd": cd,
+    "type": type_cmd
+}
+
 
 def check_partial_completion(commands: list[str]) ->bool:
     if not commands:
@@ -63,6 +104,92 @@ def list_file_names(paths: list[str]) -> set[str]:
                     file_names.add(entry)
     return file_names
 
+def exec(command: str, piped: bool = False, stdin: Union[IO[str],str,None] = None) -> Union[tuple[str,str] , Union[IO[str] | None , str]]:
+    stdout:str = ''
+    stderr: str = ''
+    redirections: dict[str,list[str]] = {'>':[], '1>':[] ,'2>':[], '>>':[], '1>>':[], '2>>':[]}
+    parts: list[str] = shlex.split(command)
+    if len(parts) == 0:
+        return "",""
+    cmd: str = parts[0]
+    params: list[str] = list()
+    paramters_set =  False
+    #check redirections
+    for i,token in enumerate(parts[1:]):
+        if token in redirections and  len(parts) > i+1:
+            redirections[token].append(parts[1:][i+1])
+            paramters_set = True
+        elif not paramters_set:
+            params.append(token)
+
+    # Handle builtin
+    if cmd in BUILTINS:
+        if stdin is not None:
+            stdout,stderr = BUILTINS[cmd](shlex.split(stdin))
+        else:
+            stdout,stderr = BUILTINS[cmd](params)    
+        stdout, stderr = check_redir(redirections=redirections , stdout=stdout,stderr=stderr)    
+        if piped:
+            return stdout
+        else:
+             return stdout,stderr      
+    # not built in command    
+    elif command_exist(cmd , paths) is not None:
+        if stdin is not None and isinstance(stdin, str):     
+            proc = subprocess.Popen(
+                [cmd] + params,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
+            )
+            stdout,stderr = proc.communicate(input=stdin)
+            stdout, stderr = check_redir(redirections=redirections , stdout=stdout,stderr=stderr)
+            if piped:
+                 return proc.stdout
+            else:
+                return stdout, stderr
+        else:
+             proc = subprocess.Popen(
+                [cmd] + params,
+                stdin=stdin,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
+            )
+             stdout,stderr = proc.communicate()
+             stdout, stderr = check_redir(redirections=redirections , stdout=stdout,stderr=stderr)
+             if piped:
+                return proc.stdout
+             else:
+                return stdout,stderr
+    else: 
+        return "",f"{cmd}: command not found"         
+
+def check_redir(redirections:dict[str,list[str]], stdout: str|None , stderr:str|None) ->tuple[str , str]:
+    stdout_redir: list[str] = redirections['>'] + redirections['1>']
+    stdout_append: list[str] = redirections['>>'] + redirections['1>>']
+    out = '' 
+    err = ''
+    if stdout_append or stdout_redir:
+        if stdout_append:
+            redirect(stdout, stdout_append, append=True)
+        if stdout_redir:
+            redirect(stdout, stdout_redir)
+    elif stdout:
+        out = (stdout.strip())
+
+    stderr_redir: list[str] = redirections['2>']
+    stderr_append: list[str] = redirections['2>>']
+    if stderr_append or stderr_redir:
+        if stderr_append:
+            redirect(stderr, stderr_append, append=True)
+        if stderr_redir:
+            redirect(stderr, stderr_redir)
+    elif stderr:
+        err = (stderr.strip())     
+    return out,err
+
 def main() -> None:
     global all_commnds
     paths: list[str] = os.environ['PATH'].split(':')
@@ -74,76 +201,23 @@ def main() -> None:
     while not term:
         #sys.stdout.write("$ ")
         # Wait for user input
-        stdout: str | None = None
-        stderr: str | None = None
-        redirections: dict[str,list[str]] = {'>':[], '1>':[] ,'2>':[], '>>':[], '1>>':[], '2>>':[]}
         command: str = input("$ ")
-        parts: list[str] = shlex.split(command)
-        if len(parts) == 0:
-            continue
-        prog: str = parts[0]
-        parmaters: list[str] = list()
-        paramters_set =  False
-        #check redirections
-        for i,token in enumerate(parts[1:]):
-            if token in redirections and  len(parts) > i+1:
-                redirections[token].append(parts[1:][i+1])
-                paramters_set = True
-            elif not paramters_set:
-                parmaters.append(token)
-                
         if command == "exit 0":
-            term = True
-        elif prog == "echo":
-            text: str = ' '.join(parmaters) + "\n"
-            stdout = text
-        elif prog == "type":
-            if len(parmaters) == 0 :
-                stderr = "type: missing arg"
-            elif  parmaters[0] in builtin_commands:
-                stdout = f"{parmaters[0]} is a shell builtin"
-            elif (path := command_exist(parmaters[0] , paths)) is not None:
-                stdout = f"{parmaters[0]} is {path}"
+            break
+        commands: list[str] = command.split('|')
+        stdin = None
+        for i,cmd in enumerate(commands):
+            if i == (len(commands) - 1) :
+                res: tuple[str, str] | IO[str] | None | str = exec(command=cmd,piped=False,stdin=stdin)
+                if isinstance(res , tuple):
+                    if res[0]:
+                        print(res[0])
+                    if res[1]:
+                        print(res[1])
+            elif i==0:
+                stdin = exec(cmd,piped=True)    
             else:
-                stderr = f"{parmaters[0]}: not found"
-        elif prog == "pwd":
-            stdout = os.getcwd()
-        elif prog == "cd":
-            if len(parmaters) == 0 :
-                stderr = "cd: missing arg"
-            elif os.path.isdir((expanded_path:=os.path.expanduser(parmaters[0]))):
-                os.chdir(expanded_path)
-            else:
-                stderr = f"cd: {parmaters[0]}: No such file or directory"   
-        elif command_exist(prog , paths) is not None:
-            result: subprocess.CompletedProcess[str] = subprocess.run([prog] + parmaters, capture_output=True, text=True)
-            if result.stdout:
-                stdout = result.stdout
-            if result.stderr:
-                stderr = result.stderr
-        else:
-            stderr = f"{command}: command not found"
-
-        #check redir
-        stdout_redir: list[str] = redirections['>'] + redirections['1>']
-        stdout_append: list[str] = redirections['>>'] + redirections['1>>']
-        if stdout_append or stdout_redir:
-            if stdout_append:
-                redirect(stdout, stdout_append, append=True)
-            if stdout_redir:
-                redirect(stdout, stdout_redir)
-        elif stdout is not None:
-            print(stdout.strip())
-
-        stderr_redir: list[str] = redirections['2>']
-        stderr_append: list[str] = redirections['2>>']
-        if stderr_append or stderr_redir:
-            if stderr_append:
-                redirect(stderr, stderr_append, append=True)
-            if stderr_redir:
-                redirect(stderr, stderr_redir)
-        elif stderr is not None:
-            print(stderr.strip())
+                stdin =  exec(cmd,piped=True,stdin=stdin)
 
 if __name__ == "__main__":
     main()
