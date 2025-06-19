@@ -18,13 +18,13 @@ def type_cmd(parmaters:list[str])->tuple[str,str]:
     stdout = ''
     stderr = ''
     if len(parmaters) == 0 :
-        stderr = "type: missing arg"
+        stderr = "type: missing arg\n"
     elif  parmaters[0] in builtin_commands:
-        stdout = f"{parmaters[0]} is a shell builtin"
+        stdout = f"{parmaters[0]} is a shell builtin\n"
     elif (path := command_exist(parmaters[0] , paths)) is not None:
         stdout = f"{parmaters[0]} is {path}"
     else:
-        stderr = f"{parmaters[0]}: not found"
+        stderr = f"{parmaters[0]}: not found\n"
     return (stdout,stderr)
 
 def pwd(parmaters:list[str])->tuple[str,str]:
@@ -33,11 +33,11 @@ def pwd(parmaters:list[str])->tuple[str,str]:
 def cd(parmaters:list[str])->tuple[str,str]:
     stderr = ''
     if len(parmaters) == 0 :
-        stderr = "cd: missing arg"
+        stderr = "cd: missing arg\n"
     elif os.path.isdir((expanded_path:=os.path.expanduser(parmaters[0]))):
         os.chdir(expanded_path)
     else:
-        stderr = f"cd: {parmaters[0]}: No such file or directory" 
+        stderr = f"cd: {parmaters[0]}: No such file or directory\n" 
     return '',stderr
     
 BUILTINS = {
@@ -138,9 +138,7 @@ def exec(command: str, piped: bool = False, stdin: Union[IO[str],str,None] = Non
         if stdin is None or isinstance(stdin, str):     
             proc = subprocess.Popen(
                 [cmd] + params,
-                stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
                 text=True
             )
             
@@ -154,11 +152,11 @@ def exec(command: str, piped: bool = False, stdin: Union[IO[str],str,None] = Non
              proc = subprocess.Popen(
                 [cmd] + params,
                 stdin=stdin,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
                 text=True
             )
-             
+             if stdin:
+                 stdin.close()
+                 
              if piped:
                 return proc.stdout
              else:

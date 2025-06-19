@@ -1,4 +1,5 @@
-builtins.py
-ex.py
-file.txt
-main.py
+1. banana orange\n2. blueberry grape\n3. raspberry mango
+3
+d
+s
+q
