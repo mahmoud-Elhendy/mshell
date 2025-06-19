@@ -135,7 +135,7 @@ def exec(command: str, piped: bool = False, stdin: Union[IO[str],str,None] = Non
              return stdout,stderr      
     # not built in command    
     elif command_exist(cmd , paths) is not None:
-        if stdin is not None and isinstance(stdin, str):     
+        if stdin is None or isinstance(stdin, str):     
             proc = subprocess.Popen(
                 [cmd] + params,
                 stdin=subprocess.PIPE,
@@ -143,11 +143,12 @@ def exec(command: str, piped: bool = False, stdin: Union[IO[str],str,None] = Non
                 stderr=subprocess.PIPE,
                 text=True
             )
-            stdout,stderr = proc.communicate(input=stdin)
-            stdout, stderr = check_redir(redirections=redirections , stdout=stdout,stderr=stderr)
+            
             if piped:
                  return proc.stdout
             else:
+                stdout,stderr = proc.communicate(input=stdin)
+                stdout, stderr = check_redir(redirections=redirections , stdout=stdout,stderr=stderr)
                 return stdout, stderr
         else:
              proc = subprocess.Popen(
@@ -157,11 +158,12 @@ def exec(command: str, piped: bool = False, stdin: Union[IO[str],str,None] = Non
                 stderr=subprocess.PIPE,
                 text=True
             )
-             stdout,stderr = proc.communicate()
-             stdout, stderr = check_redir(redirections=redirections , stdout=stdout,stderr=stderr)
+             
              if piped:
                 return proc.stdout
              else:
+                stdout,stderr = proc.communicate()
+                stdout, stderr = check_redir(redirections=redirections , stdout=stdout,stderr=stderr)
                 return stdout,stderr
     else: 
         return "",f"{cmd}: command not found"         
@@ -215,7 +217,7 @@ def main() -> None:
                     if res[1]:
                         print(res[1])
             elif i==0:
-                stdin = exec(cmd,piped=True)    
+                stdin = exec(cmd,piped=True)   
             else:
                 stdin =  exec(cmd,piped=True,stdin=stdin)
 

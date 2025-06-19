@@ -56,8 +56,8 @@ def exec(command: str, piped: bool = False, stdin: Union[IO[str],str,None] = Non
              
 
 # echo is builtin, tail and head are external
-out1: IO[str] = exec("echo 'uuuuu'", piped=True)
+out1: IO[str] = exec("cat main.py", piped=True)
 print(out1)
-out2: IO[str] = exec("head -n 5", stdin=out1)
+out2: IO[str] = exec("wc", stdin=out1)
 
 print(out2)
