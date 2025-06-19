@@ -8,6 +8,7 @@ builtin_commands: set[str] = {"echo","exit","type","pwd","cd","history"}
 all_commnds: set[str] = builtin_commands.copy()
 first_tab: bool = True
 paths: list[str] = os.environ['PATH'].split(':')
+history_list: list[str] = []
 
 def echo(parmaters:list[str]) ->tuple[str,str]:
         out: str = ' '.join(parmaters) + "\n"
@@ -39,13 +40,24 @@ def cd(parmaters:list[str])->tuple[str,str]:
     else:
         stderr = f"cd: {parmaters[0]}: No such file or directory\n" 
     return '',stderr
-    
+
+def history(parmaters:list[str])->tuple[str,str]:
+    global history_list
+    stdout = ''
+    if parmaters:
+        entries: int = int(parmaters[0])
+        stdout = '\n'.join(history_list[-entries:])
+    else:
+        stdout = '\n'.join(history_list)
+    return stdout + '\n',''  
+      
 BUILTINS = {
     "echo": echo,
     #"exit": None,
     "pwd":pwd,
     "cd": cd,
-    "type": type_cmd
+    "type": type_cmd,
+    "history": history
 }
 
 
@@ -198,16 +210,20 @@ def check_redir(redirections:dict[str,list[str]], stdout: str|None , stderr:str|
 
 def main() -> None:
     global all_commnds
+    global history_list
     paths: list[str] = os.environ['PATH'].split(':')
     all_commnds |= list_file_names(paths)
     readline.set_completer(completer)
     readline.parse_and_bind("tab: complete")
     term: bool = False
-    
+    hist_entry_number: int = 1
     while not term:
         #sys.stdout.write("$ ")
         # Wait for user input
         command: str = input("$ ")
+        history_entry: str = f"{hist_entry_number} {command}"
+        hist_entry_number += 1
+        history_list .append(history_entry)
         if command == "exit 0":
             break
         commands: list[str] = command.split('|')
