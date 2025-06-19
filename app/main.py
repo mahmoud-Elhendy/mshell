@@ -44,12 +44,25 @@ def cd(parmaters:list[str])->tuple[str,str]:
 def history(parmaters:list[str])->tuple[str,str]:
     global history_list
     stdout = ''
+    stderr = ''
     if parmaters:
-        entries: int = int(parmaters[0])
-        stdout = '\n'.join(history_list[-entries:])
+        if parmaters[0] == '-r':
+            if len(parmaters) < 2:
+                stderr = 'history: missing path\n'
+            else:
+                if os.path.exists((expanded_path:=os.path.expanduser(parmaters[1]))):
+                    with open(expanded_path, 'r') as f:
+                        for line in f:
+                            if line.strip():
+                                history_list.append(line) 
+                else:
+                    stderr = f'history:{expanded_path} No such file or directory\n'
+        else:    
+            entries: int = int(parmaters[0])
+            stdout = '\n'.join(history_list[-entries:])
     else:
-        stdout = '\n'.join(history_list)
-    return stdout + '\n',''  
+        stdout = ''.join(history_list)
+    return stdout,stderr  
       
 BUILTINS = {
     "echo": echo,
@@ -221,7 +234,7 @@ def main() -> None:
         #sys.stdout.write("$ ")
         # Wait for user input
         command: str = input("$ ")
-        history_entry: str = f"{hist_entry_number} {command}"
+        history_entry: str = f"{hist_entry_number} {command}\n"
         hist_entry_number += 1
         history_list .append(history_entry)
         if command == "exit 0":

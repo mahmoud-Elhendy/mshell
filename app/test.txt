@@ -1,5 +1,3 @@
-banana
-mango
-pear
-apple
-raspberry
+echo hello
+echo world
+
