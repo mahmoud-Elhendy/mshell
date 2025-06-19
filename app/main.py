@@ -105,7 +105,7 @@ def list_file_names(paths: list[str]) -> set[str]:
     return file_names
 
 def exec(command: str, piped: bool = False, stdin: Union[IO[str],str,None] = None) -> Union[tuple[str,str] , Union[IO[str] | None , str]]:
-    stdout:str = ''
+    stdout: str = ''
     stderr: str = ''
     redirections: dict[str,list[str]] = {'>':[], '1>':[] ,'2>':[], '>>':[], '1>>':[], '2>>':[]}
     parts: list[str] = shlex.split(command)
@@ -179,7 +179,7 @@ def check_redir(redirections:dict[str,list[str]], stdout: str|None , stderr:str|
         if stdout_redir:
             redirect(stdout, stdout_redir)
     elif stdout:
-        out = (stdout.strip())
+        out = stdout
 
     stderr_redir: list[str] = redirections['2>']
     stderr_append: list[str] = redirections['2>>']
@@ -189,7 +189,7 @@ def check_redir(redirections:dict[str,list[str]], stdout: str|None , stderr:str|
         if stderr_redir:
             redirect(stderr, stderr_redir)
     elif stderr:
-        err = (stderr.strip())     
+        err = stderr    
     return out,err
 
 def main() -> None:
