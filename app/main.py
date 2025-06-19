@@ -213,9 +213,9 @@ def main() -> None:
                 res: tuple[str, str] | IO[str] | None | str = exec(command=cmd,piped=False,stdin=stdin)
                 if isinstance(res , tuple):
                     if res[0]:
-                        print(res[0])
+                        print(res[0],end='')
                     if res[1]:
-                        print(res[1])
+                        print(res[1],end='')
             elif i==0:
                 stdin = exec(cmd,piped=True)   
             else:
