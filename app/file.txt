@@ -3,3 +3,6 @@
 d
 s
 q
+ls: cannot access 'nonexist': No such file or directory
+ls: cannot access 'nonexist': No such file or directory
+ls: cannot access 'nonexist': No such file or directory
