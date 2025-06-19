@@ -162,9 +162,7 @@ def exec(command: str, piped: bool = False, stdin: Union[IO[str],str,None] = Non
                 return proc.stdout
              else:
                 stdout,stderr = proc.communicate()
-                print(stdout,stderr)
                 stdout, stderr = check_redir(redirections=redirections , stdout=stdout,stderr=stderr)
-                print(stdout,stderr)
                 return stdout,stderr
     else:
         stderr = f"{cmd}: command not found" 
