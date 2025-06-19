@@ -165,7 +165,7 @@ def exec(command: str, piped: bool = False, stdin: Union[IO[str],str,None] = Non
                 stdout, stderr = check_redir(redirections=redirections , stdout=stdout,stderr=stderr)
                 return stdout,stderr
     else:
-        stderr = f"{cmd}: command not found" 
+        stderr = f"{cmd}: command not found\n" 
         stdout, stderr = check_redir(redirections=redirections , stdout="",stderr=stderr)
         return stdout, stderr         
 
