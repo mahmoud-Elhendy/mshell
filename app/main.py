@@ -28,7 +28,7 @@ def type_cmd(parmaters:list[str])->tuple[str,str]:
     return (stdout,stderr)
 
 def pwd(parmaters:list[str])->tuple[str,str]:
-    return os.getcwd(),''
+    return os.getcwd() + '\n',''
 
 def cd(parmaters:list[str])->tuple[str,str]:
     stderr = ''
