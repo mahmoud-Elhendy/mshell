@@ -22,7 +22,7 @@ def type_cmd(parmaters:list[str])->tuple[str,str]:
     elif  parmaters[0] in builtin_commands:
         stdout = f"{parmaters[0]} is a shell builtin\n"
     elif (path := command_exist(parmaters[0] , paths)) is not None:
-        stdout = f"{parmaters[0]} is {path}"
+        stdout = f"{parmaters[0]} is {path}\n"
     else:
         stderr = f"{parmaters[0]}: not found\n"
     return (stdout,stderr)
