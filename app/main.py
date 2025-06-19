@@ -163,8 +163,10 @@ def exec(command: str, piped: bool = False, stdin: Union[IO[str],str,None] = Non
                 stdout,stderr = proc.communicate()
                 stdout, stderr = check_redir(redirections=redirections , stdout=stdout,stderr=stderr)
                 return stdout,stderr
-    else: 
-        return "",f"{cmd}: command not found"         
+    else:
+        stderr = f"{cmd}: command not found" 
+        stdout, stderr = check_redir(redirections=redirections , stdout="",stderr=stderr)
+        return stdout, stderr         
 
 def check_redir(redirections:dict[str,list[str]], stdout: str|None , stderr:str|None) ->tuple[str , str]:
     stdout_redir: list[str] = redirections['>'] + redirections['1>']
