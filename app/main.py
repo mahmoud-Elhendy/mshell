@@ -4,7 +4,7 @@ import shlex
 import readline
 from typing import IO, Union
 
-builtin_commands: set[str] = {"echo","exit","type","pwd","cd"}
+builtin_commands: set[str] = {"echo","exit","type","pwd","cd","history"}
 all_commnds: set[str] = builtin_commands.copy()
 first_tab: bool = True
 paths: list[str] = os.environ['PATH'].split(':')
