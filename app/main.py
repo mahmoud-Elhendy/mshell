@@ -138,6 +138,7 @@ def exec(command: str, piped: bool = False, stdin: Union[IO[str],str,None] = Non
         if stdin is None or isinstance(stdin, str):     
             proc = subprocess.Popen(
                 [cmd] + params,
+                stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True
