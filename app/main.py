@@ -125,7 +125,7 @@ def exec(command: str, piped: bool = False, stdin: Union[IO[str],str,None] = Non
     # Handle builtin
     if cmd in BUILTINS:
         if stdin is not None:
-            stdout,stderr = BUILTINS[cmd](shlex.split(stdin))
+            stdout,stderr = BUILTINS[cmd](params + shlex.split(stdin))
         else:
             stdout,stderr = BUILTINS[cmd](params)    
         stdout, stderr = check_redir(redirections=redirections , stdout=stdout,stderr=stderr)    
