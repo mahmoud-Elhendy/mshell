@@ -1,8 +1,0 @@
-1. banana orange\n2. blueberry grape\n3. raspberry mango
-3
-d
-s
-q
-ls: cannot access 'nonexist': No such file or directory
-ls: cannot access 'nonexist': No such file or directory
-ls: cannot access 'nonexist': No such file or directory

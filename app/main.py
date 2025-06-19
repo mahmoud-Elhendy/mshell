@@ -154,6 +154,8 @@ def exec(command: str, piped: bool = False, stdin: Union[IO[str],str,None] = Non
              proc = subprocess.Popen(
                 [cmd] + params,
                 stdin=stdin,
+                stdout=subprocess.PIPE if piped else None,
+                stderr=subprocess.PIPE if piped else None,
                 text=True
             )
              if stdin:
