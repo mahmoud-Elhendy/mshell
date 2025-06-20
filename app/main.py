@@ -7,8 +7,8 @@ from typing import IO, Union
 builtin_commands: set[str] = {"echo","exit","type","pwd","cd","history"}
 all_commnds: set[str] = builtin_commands.copy()
 first_tab: bool = True
-paths: list[str] = os.environ['PATH'].split(':')
-histfile: str = os.environ['HISTFILE']
+paths: list[str] = os.environ['PATH'].split(':') if 'PATH' in os.environ else []
+histfile: str | None = os.environ['HISTFILE'] if 'HISTFILE' in os.environ else None
 history_list: list[tuple[str,str]] = []
 hist_entry_number: int = 1
 hist_last_append_idx: int = 0
@@ -47,10 +47,10 @@ def cd(parmaters:list[str])->tuple[str,str]:
 def history(parmaters:list[str])->tuple[str,str]:
     stdout = ''
     stderr = ''
-    if parmaters:
-        if len(parmaters) < 2:
-            stderr = 'history: missing path\n'
-        elif parmaters[0] == '-r':
+    if not parmaters:
+        stdout = read_history()
+    elif len(parmaters) >= 2:
+        if parmaters[0] == '-r':
             if not load_history((expanded_path:=os.path.expanduser(parmaters[1]))):
                 stderr = f'history:{expanded_path} No such file or directory\n'
         elif parmaters[0] == '-w':
@@ -58,11 +58,10 @@ def history(parmaters:list[str])->tuple[str,str]:
         elif parmaters[0] == '-a':
             if not append_history(expanded_path:=os.path.expanduser(parmaters[1])):
                 stderr = f'history:{expanded_path} No such file or directory\n'
-        else:    
-            entries: int = int(parmaters[0])
-            stdout = read_history(entries)
-    else:
-        stdout = read_history()
+    elif len(parmaters) == 1 and parmaters[0].isdigit():    
+        entries: int = int(parmaters[0])
+        stdout = read_history(entries)
+    
     return stdout,stderr  
       
 BUILTINS = {
@@ -276,7 +275,8 @@ def main() -> None:
     readline.set_completer(completer)
     readline.parse_and_bind("tab: complete")
     term: bool = False
-    load_history(histfile)
+    if histfile:
+        load_history(histfile)
     while not term:
         #sys.stdout.write("$ ")
         # Wait for user input

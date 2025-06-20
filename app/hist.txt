@@ -1,15 +1,7 @@
 e1
-e2
+history 
 history -w hist.txt
 e1
 history 
-echo nanan
-history -a hist.txt
-history -a hist.txt
-echo nnn
-history -a hist.txt
-history -a hist.txt
-history -a hist.txt
-history -a hist.tx
-history -a hist.tx
+history -w hist.txt
 history -a hist.txt
