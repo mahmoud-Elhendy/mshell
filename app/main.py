@@ -10,6 +10,7 @@ first_tab: bool = True
 paths: list[str] = os.environ['PATH'].split(':')
 history_list: list[tuple[str,str]] = []
 hist_entry_number: int = 1
+hist_last_append_idx: int = 0
 
 def echo(parmaters:list[str]) ->tuple[str,str]:
         out: str = ' '.join(parmaters) + "\n"
@@ -61,7 +62,13 @@ def history(parmaters:list[str])->tuple[str,str]:
             if len(parmaters) < 2:
                 stderr = 'history: missing path\n'
             else:
-                write_history(os.path.expanduser(parmaters[1]))            
+                write_history(os.path.expanduser(parmaters[1]))   
+        elif parmaters[0] == '-a':
+            if len(parmaters) < 2:
+                stderr = 'history: missing path\n'
+            else:
+                if not append_history(expanded_path:=os.path.expanduser(parmaters[1])):
+                    stderr = f'history:{expanded_path} No such file or directory\n'
         else:    
             entries: int = int(parmaters[0])
             stdout = read_history(entries)
@@ -248,7 +255,20 @@ def write_history(path: str) -> None:
     with open(path, 'w') as f:
         for cmd in [t[1] for t in history_list]:
             f.write(cmd)
-        
+
+def append_history(path: str) -> bool:
+    global history_list
+    global hist_last_append_idx
+    if os.path.exists(path):
+        if (last_append_list := history_list[hist_last_append_idx:]):
+            with open(path, 'a') as f:
+                for cmd in [t[1] for t in last_append_list]:
+                    f.write(cmd)
+            hist_last_append_idx = len(history_list)
+        return True
+    else:
+        return False    
+
 def main() -> None:
     global all_commnds
 
