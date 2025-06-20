@@ -1,7 +1,0 @@
-e1
-history 
-history -w hist.txt
-e1
-history 
-history -w hist.txt
-history -a hist.txt
