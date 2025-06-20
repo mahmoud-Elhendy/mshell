@@ -57,7 +57,7 @@ def history(parmaters:list[str])->tuple[str,str]:
                                 add_history(line)
                 else:
                     stderr = f'history:{expanded_path} No such file or directory\n'
-        if parmaters[0] == '-w':
+        elif parmaters[0] == '-w':
             if len(parmaters) < 2:
                 stderr = 'history: missing path\n'
             else:
