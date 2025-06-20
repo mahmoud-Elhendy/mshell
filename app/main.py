@@ -283,6 +283,8 @@ def main() -> None:
         command: str = input("$ ")
         add_history(command + '\n')
         if command == "exit 0":
+            if histfile:
+                write_history(histfile)
             break
         commands: list[str] = command.split('|')
         stdin = None
