@@ -248,7 +248,6 @@ def write_history(path: str) -> None:
     with open(path, 'w') as f:
         for cmd in [t[1] for t in history_list]:
             f.write(cmd)
-        f.write('\n')
         
 def main() -> None:
     global all_commnds
