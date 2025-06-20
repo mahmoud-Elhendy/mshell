@@ -62,7 +62,7 @@ def history(parmaters:list[str])->tuple[str,str]:
                     stderr = f'history:{expanded_path} No such file or directory\n'
         else:    
             entries: int = int(parmaters[0])
-            stdout = '\n'.join(history_list[-entries:])
+            stdout = ''.join(history_list[-entries:])
     else:
         stdout = ''.join(history_list)
     return stdout,stderr  
