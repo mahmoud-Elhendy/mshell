@@ -8,7 +8,7 @@ builtin_commands: set[str] = {"echo", "exit", "type", "pwd", "cd", "history"}
 all_commnds: set[str] = builtin_commands.copy()
 first_tab: bool = True
 paths: list[str] = os.environ['PATH'].split(
-    ':') if 'PATH' in os.environ else []
+    os.pathsep) if 'PATH' in os.environ else []
 histfile: str | None = os.environ['HISTFILE'] if 'HISTFILE' in os.environ else None
 history_list: list[tuple[str, str]] = []
 hist_entry_number: int = 1
