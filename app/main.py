@@ -8,7 +8,7 @@ builtin_commands: set[str] = {"echo","exit","type","pwd","cd","history"}
 all_commnds: set[str] = builtin_commands.copy()
 first_tab: bool = True
 paths: list[str] = os.environ['PATH'].split(':')
-history_list: list[str] = []
+history_list: list[tuple[str,str]] = []
 hist_entry_number: int = 1
 
 def echo(parmaters:list[str]) ->tuple[str,str]:
@@ -43,8 +43,6 @@ def cd(parmaters:list[str])->tuple[str,str]:
     return '',stderr
 
 def history(parmaters:list[str])->tuple[str,str]:
-    global history_list
-    global hist_entry_number
     stdout = ''
     stderr = ''
     if parmaters:
@@ -56,15 +54,19 @@ def history(parmaters:list[str])->tuple[str,str]:
                     with open(expanded_path, 'r') as f:
                         for line in f:
                             if line.strip():
-                                history_list.append(f'{hist_entry_number} {line}')
-                                hist_entry_number += 1 
+                                add_history(line)
                 else:
                     stderr = f'history:{expanded_path} No such file or directory\n'
+        if parmaters[0] == '-w':
+            if len(parmaters) < 2:
+                stderr = 'history: missing path\n'
+            else:
+                write_history(os.path.expanduser(parmaters[1]))            
         else:    
             entries: int = int(parmaters[0])
-            stdout = ''.join(history_list[-entries:])
+            stdout = read_history(entries)
     else:
-        stdout = ''.join(history_list)
+        stdout = read_history()
     return stdout,stderr  
       
 BUILTINS = {
@@ -224,10 +226,32 @@ def check_redir(redirections:dict[str,list[str]], stdout: str|None , stderr:str|
         err = stderr    
     return out,err
 
-def main() -> None:
-    global all_commnds
+def add_history(command: str) -> None:
     global history_list
     global hist_entry_number
+    history_entry: tuple[str, str] = (str(hist_entry_number), command)
+    hist_entry_number += 1
+    history_list .append(history_entry)
+
+def read_history(entries: int | None = None) -> str:
+    global history_list
+    if entries == 0:
+        return ''
+    if entries and entries > 0:
+        return ''.join(f'{t[0]} {t[1]}' for t in history_list[-entries:])
+    else:
+        return ''.join(f'{t[0]} {t[1]}' for t in history_list)
+
+def write_history(path: str) -> None:
+    global history_list
+    
+    with open(path, 'w') as f:
+        for cmd in [t[1] for t in history_list]:
+            f.write(cmd)
+        f.write('\n')
+        
+def main() -> None:
+    global all_commnds
 
     paths: list[str] = os.environ['PATH'].split(':')
     all_commnds |= list_file_names(paths)
@@ -239,9 +263,7 @@ def main() -> None:
         #sys.stdout.write("$ ")
         # Wait for user input
         command: str = input("$ ")
-        history_entry: str = f"{hist_entry_number} {command}\n"
-        hist_entry_number += 1
-        history_list .append(history_entry)
+        add_history(command + '\n')
         if command == "exit 0":
             break
         commands: list[str] = command.split('|')
