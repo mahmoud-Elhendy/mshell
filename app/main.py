@@ -8,6 +8,7 @@ builtin_commands: set[str] = {"echo","exit","type","pwd","cd","history"}
 all_commnds: set[str] = builtin_commands.copy()
 first_tab: bool = True
 paths: list[str] = os.environ['PATH'].split(':')
+histfile: str = os.environ['HISTFILE']
 history_list: list[tuple[str,str]] = []
 hist_entry_number: int = 1
 hist_last_append_idx: int = 0
@@ -47,28 +48,16 @@ def history(parmaters:list[str])->tuple[str,str]:
     stdout = ''
     stderr = ''
     if parmaters:
-        if parmaters[0] == '-r':
-            if len(parmaters) < 2:
-                stderr = 'history: missing path\n'
-            else:
-                if os.path.exists((expanded_path:=os.path.expanduser(parmaters[1]))):
-                    with open(expanded_path, 'r') as f:
-                        for line in f:
-                            if line.strip():
-                                add_history(line)
-                else:
-                    stderr = f'history:{expanded_path} No such file or directory\n'
+        if len(parmaters) < 2:
+            stderr = 'history: missing path\n'
+        elif parmaters[0] == '-r':
+            if not load_history((expanded_path:=os.path.expanduser(parmaters[1]))):
+                stderr = f'history:{expanded_path} No such file or directory\n'
         elif parmaters[0] == '-w':
-            if len(parmaters) < 2:
-                stderr = 'history: missing path\n'
-            else:
-                write_history(os.path.expanduser(parmaters[1]))   
+            write_history(os.path.expanduser(parmaters[1]))   
         elif parmaters[0] == '-a':
-            if len(parmaters) < 2:
-                stderr = 'history: missing path\n'
-            else:
-                if not append_history(expanded_path:=os.path.expanduser(parmaters[1])):
-                    stderr = f'history:{expanded_path} No such file or directory\n'
+            if not append_history(expanded_path:=os.path.expanduser(parmaters[1])):
+                stderr = f'history:{expanded_path} No such file or directory\n'
         else:    
             entries: int = int(parmaters[0])
             stdout = read_history(entries)
@@ -249,6 +238,16 @@ def read_history(entries: int | None = None) -> str:
     else:
         return ''.join(f'{t[0]} {t[1]}' for t in history_list)
 
+def load_history(path: str) -> bool:
+    if os.path.exists(path):
+        with open(path, 'r') as f:
+            for line in f:
+                if line.strip():
+                    add_history(line)
+        return True
+    else:
+        return False            
+
 def write_history(path: str) -> None:
     global history_list
     
@@ -271,13 +270,13 @@ def append_history(path: str) -> bool:
 
 def main() -> None:
     global all_commnds
-
-    paths: list[str] = os.environ['PATH'].split(':')
+    global histfile
+    global paths
     all_commnds |= list_file_names(paths)
     readline.set_completer(completer)
     readline.parse_and_bind("tab: complete")
     term: bool = False
-    
+    load_history(histfile)
     while not term:
         #sys.stdout.write("$ ")
         # Wait for user input
