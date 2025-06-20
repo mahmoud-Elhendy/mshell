@@ -9,6 +9,7 @@ all_commnds: set[str] = builtin_commands.copy()
 first_tab: bool = True
 paths: list[str] = os.environ['PATH'].split(':')
 history_list: list[str] = []
+hist_entry_number: int = 1
 
 def echo(parmaters:list[str]) ->tuple[str,str]:
         out: str = ' '.join(parmaters) + "\n"
@@ -43,6 +44,7 @@ def cd(parmaters:list[str])->tuple[str,str]:
 
 def history(parmaters:list[str])->tuple[str,str]:
     global history_list
+    global hist_entry_number
     stdout = ''
     stderr = ''
     if parmaters:
@@ -54,7 +56,8 @@ def history(parmaters:list[str])->tuple[str,str]:
                     with open(expanded_path, 'r') as f:
                         for line in f:
                             if line.strip():
-                                history_list.append(line) 
+                                history_list.append(f'{hist_entry_number} {line}')
+                                hist_entry_number += 1 
                 else:
                     stderr = f'history:{expanded_path} No such file or directory\n'
         else:    
@@ -224,12 +227,14 @@ def check_redir(redirections:dict[str,list[str]], stdout: str|None , stderr:str|
 def main() -> None:
     global all_commnds
     global history_list
+    global hist_entry_number
+
     paths: list[str] = os.environ['PATH'].split(':')
     all_commnds |= list_file_names(paths)
     readline.set_completer(completer)
     readline.parse_and_bind("tab: complete")
     term: bool = False
-    hist_entry_number: int = 1
+    
     while not term:
         #sys.stdout.write("$ ")
         # Wait for user input
